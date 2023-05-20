@@ -32,7 +32,7 @@ ImageProcess::ImageProcess() {
     srcImg=new Img;
     processedImg=new Img;
     int* ar =new int[9]{0,1,0,1,1,1,0,1,0};
-    mask = new Img{ar,3 ,3};
+    mask = new Img{ar, 3,3};
 }
 ImageProcess::ImageProcess(int w, int h){
     srcImg=new Img(w,h);
@@ -219,6 +219,7 @@ int ImageProcess::loadImgFromFile(const char* fileName, int format){
     Img* NEWsrcImg = new Img{ ar, w, h };
     delete srcImg;
     srcImg=new Img(NEWsrcImg->srcImg,NEWsrcImg->width,NEWsrcImg->height);
+    processedImg=new Img(NEWsrcImg->srcImg,NEWsrcImg->width,NEWsrcImg->height);
     delete NEWsrcImg;
     delete[] ar;
     delete[] buf;
