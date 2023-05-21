@@ -64,6 +64,7 @@ ImageProcess::ImageProcess(const char* fileName) {
         int w;
         int k = 0;
         int i = 0;
+
         while (fin.get(q)) {
 
             if (k == 0 && (int)q-48>=0 ) {
@@ -109,93 +110,205 @@ int ImageProcess::updateSrcImg(){
     delete srcImg;
     srcImg= new Img(processedImg->srcImg, processedImg->width, processedImg->height);
 }
-int ImageProcess::dilatation(int point){
-    // надо чтобы пимг и симг было одинаковое наверное
-    int w = srcImg->width;
-    int h = srcImg->height;
-    if(point==1){
-        for(int j=mask->width;j>=3;j=j-2){
-            for(int i=0; i<h*w;i++){
-                if(srcImg->srcImg[i]==1){
-                    if((i-h)>=0 )
-                        processedImg->srcImg[i-h]=1;
-                    if((i+h)<=h*w )
-                        processedImg->srcImg[i+h]=1;
-                    if((i-1)>=0 )
-                        processedImg->srcImg[i-1]=1;
-                    if((i+1)<=h*w )
-                        processedImg->srcImg[i+1]=1;
-                }
+int ImageProcess::dilatation(int srcImg){
+    int iw;
+    int ih;
+    int* img;
+    if(srcImg==1){
+       iw=this->srcImg->width;
+       ih=this->srcImg->height;
+       img=this->srcImg->srcImg;
+    }
+    else{
+        iw=this->processedImg->width;
+        ih=this->processedImg->height;
+        img=this->processedImg->srcImg;
+    }
+    int mw=this->mask->width;
+    int mh=this->mask->height;
+    int* mask=this->mask->srcImg;
+    int rw=iw+(mw/2)*2;
+    int rh=ih+(mh/2)*2;
+    int j=0;
+    int d=0;
+    int q=(rw*(mh/2)+mw/2);
+    int w=(rw*rh-(rw*(mh/2)+mw/2)-1);
+    int* imgr=new int[rw*rh];
+    for(int i=0;i<rw*rh;i++){
+        imgr[i]=0;
+    }
+    for(int i=0;i<rw*rh;i++){
+        if (q<=i && w>=i){
+            if(0<=j && j<iw){
+                imgr[i]=img[d];
+                j++;
+                d++;
+                continue;
             }
-
+            else{
+                i=i+(mw/2)*2-1;
+                j=0;
+                continue;
+            }
         }
     }
-    if(point==0){
-        int* ar=new int [w*h];
-        for(int i=0; i<w*h;i++){
-            ar[i]=processedImg->srcImg[i];
-        }
-        for(int j=mask->width;j>=3;j=j-2){
-            for(int i=0; i<h*w;i++){
-                if(ar[i]==1){
-                    if((i-h)>=0 )
-                        processedImg->srcImg[i-h]=1;
-                    if((i+h)<=h*w )
-                        processedImg->srcImg[i+h]=1;
-                    if((i-1)>=0 )
-                        processedImg->srcImg[i-1]=1;
-                    if((i+1)<=h*w )
-                        processedImg->srcImg[i+1]=1;
+    ////////////delotation
+    d=0;
+    int p=0;
+    int* imgr1= new int[rw*rh];
+    for(int i=0;i<rw*rh;i++){
+        imgr1[i]=imgr[i];
+    }
+    for(int i=0;i<rw*rh;i++){
+        if(imgr[i]==mask[(mw*mh)/2]){
+            for(int j=(i-(mh/2)*rw-(mw/2));j<=(i+(mh/2)*rw+(mw/2));j++){
+                if(0<=d && d<mw){
+                    if(mask[p]==1){
+                        imgr1[j]=mask[p];
+                        d++;
+                        p++;
+                        continue;
+                    }
+                    else{
+                        d++;
+                        p++;
+                        continue;
+                    }
+                }
+                else{
+                    j=(j-mw)+rw-1;
+                    d=0;
+                    continue;
                 }
 
             }
+            d=0;
+            p=0;
         }
-
-        delete[] ar;
     }
+    d=0;
+    j=0;
+    for(int i=0;i<rw*rh;i++){
+        if (q<=i && w>=i){
+            if(0<=j && j<iw){
+                img[d]=imgr1[i];
+                j++;
+                d++;
+                continue;
+            }
+            else{
+                i=i+(mw/2)*2-1;
+                j=0;
+                continue;
+            }
+        }
+    }
+    for(int i=0;i<iw*ih;i++){
+        processedImg->srcImg[i]=img[i];
+    }
+    img=nullptr;
+    mask=nullptr;
     return 0;
-}
-int ImageProcess::erosion(int point){
-    int w = srcImg->width;
-    int h = srcImg->height;
-    if(point==1){
-        for(int j=mask->width;j>=3;j=j-2){
-            for(int i=0; i<h*w;i++){
-                if(srcImg->srcImg[i]==1){
-                    if((i-h)>=0 )
-                        processedImg->srcImg[i-h]=0;
-                    if((i+h)<=h*w )
-                        processedImg->srcImg[i+h]=0;
-                    if((i-1)>=0 )
-                        processedImg->srcImg[i-1]=0;
-                    if((i+1)<=h*w )
-                        processedImg->srcImg[i+1]=0;
-                }
-            }
 
-        }
+
+}
+int ImageProcess::erosion(int srcImg){
+    int iw;
+    int ih;
+    int* img;
+    if(srcImg==1){
+        iw=this->srcImg->width;
+        ih=this->srcImg->height;
+        img=this->srcImg->srcImg;
     }
-    if(point==0){
-        int* ar=new int [w*h];
-        for(int i=0; i<w*h;i++){
-            ar[i]=processedImg->srcImg[i];
-        }
-        for(int j=mask->width;j>=3;j=j-2){
-            for(int i=0; i<h*w;i++){
-                if(srcImg->srcImg[i]==1){
-                    if((i-h)>=0 )
-                        processedImg->srcImg[i-h]=0;
-                    if((i+h)<=h*w )
-                        processedImg->srcImg[i+h]=0;
-                    if((i-1)>=0 )
-                        processedImg->srcImg[i-1]=0;
-                    if((i+1)<=h*w )
-                        processedImg->srcImg[i+1]=0;
-                }
+    else{
+        iw=this->processedImg->width;
+        ih=this->processedImg->height;
+        img=this->processedImg->srcImg;
+    }
+    int mw=this->mask->width;
+    int mh=this->mask->height;
+    int* mask=this->mask->srcImg;
+    int rw=iw+(mw/2)*2;
+    int rh=ih+(mh/2)*2;
+    int j=0;
+    int d=0;
+    int q=(rw*(mh/2)+mw/2);
+    int w=(rw*rh-(rw*(mh/2)+mw/2)-1);
+    int* imgr=new int[rw*rh];
+    for(int i=0;i<rw*rh;i++){
+        imgr[i]=1;
+    }
+    for(int i=0;i<rw*rh;i++){
+        if (q<=i && w>=i){
+            if(0<=j && j<iw){
+                imgr[i]=img[d];
+                j++;
+                d++;
+                continue;
+            }
+            else{
+                i=i+(mw/2)*2-1;
+                j=0;
+                continue;
             }
         }
-        delete[] ar;
     }
+    d=0;
+    int p=0;
+    int* imgr1= new int[rw*rh];
+    for(int i=0;i<rw*rh;i++){
+        imgr1[i]=imgr[i];
+    }
+    for(int i=0;i<rw*rh;i++){
+        if(imgr[i]==mask[(mw*mh)/2]-1){
+            for(int j=(i-(mh/2)*rw-(mw/2));j<=(i+(mh/2)*rw+(mw/2));j++){
+                if(0<=d && d<mw){
+                    if(mask[p]==1){
+                        imgr1[j]=mask[p]-1;
+                        d++;
+                        p++;
+                        continue;
+                    }
+                    else{
+                        d++;
+                        p++;
+                        continue;
+                    }
+                }
+                else{
+                    j=(j-mw)+rw-1;
+                    d=0;
+                    continue;
+                }
+
+            }
+            d=0;
+            p=0;
+        }
+    }
+    d=0;
+    j=0;
+    for(int i=0;i<rw*rh;i++){
+        if (q<=i && w>=i){
+            if(0<=j && j<iw){
+                img[d]=imgr1[i];
+                j++;
+                d++;
+                continue;
+            }
+            else{
+                i=i+(mw/2)*2-1;
+                j=0;
+                continue;
+            }
+        }
+    }
+    for(int i=0;i<iw*ih;i++){
+        processedImg->srcImg[i]=img[i];
+    }
+    img=nullptr;
+    mask=nullptr;
     return 0;
 }
 int ImageProcess::loadImgFromFile(const char* fileName, int format){

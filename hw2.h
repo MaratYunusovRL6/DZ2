@@ -36,8 +36,8 @@ public:
 
     int updateMask(const Img& mask);//новое????? задание маски почему интовая???
     int updateSrcImg();//перезаписать исходную картинку картинкой,которая была получена в результате дил и или эрозии
-    int dilatation(int point=1);//дилатация картинки результат записать в processedImg  А КАК Я БУДУ ИСПОЛЬЗОВАЬ srcImg как указатель???
-    int erosion(int point=1);//эрозия картинки результат записать в processedImg заменю на поинт, а иначе хз???
+    int dilatation(int srcImg=1);//дилатация картинки результат записать в processedImg  А КАК Я БУДУ ИСПОЛЬЗОВАЬ srcImg как указатель???
+    int erosion(int srcImg=1);//эрозия картинки результат записать в processedImg заменю на поинт, а иначе хз???
     int loadImgFromFile(const char* fileName, int format=1);//0-последовательно 1-с с переходом на новую матрица
     int saveImgToFile(const char* fileName, int format=1);//0-последовательно 1-с с переходом на новую матрица
 };
