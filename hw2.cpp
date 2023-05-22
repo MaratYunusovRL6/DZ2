@@ -49,49 +49,29 @@ ImageProcess::ImageProcess(const Img* img){
     delete[] ar;
 }
 ImageProcess::ImageProcess(const char* fileName) {
-    ifstream fin;
-    fin.open(fileName);
-    if (!fin.is_open()){
-        cout << "!! dont open !!" << endl;
-        srcImg = new Img;// если вдруг файл не открывается, то все равно надо выделить память иначе диструктор будет собираться удалять память не ту
-        processedImg = new Img;
+    FILE* fLog = fopen(fileName, "r");
+    int w, h;
+    if (fscanf(fLog, "%d\t%d", &w, &h) == false) {
+        cout << "wrong input" << endl;
+        fclose(fLog);
     }
-    else {
-        srcImg = new Img;
-        processedImg = new Img;
-        char q;
-        int h;
-        int w;
-        int k = 0;
-        int i = 0;
-
-        while (fin.get(q)) {
-
-            if (k == 0 && (int)q-48>=0 ) {
-                h = ((int)q)-'0';//жеско переводим в инт(запомнить!!!!!!)
-                k++;
-                continue;
-            }
-            if (k == 1 && (int)q-48>=0) {
-                w = (int)q-'0';
-                break;
-            }
-        }
-        int *ar = new int[w * h];
-        while (fin.get(q)) {
-            if((int)q-48==0 ||(int)q-48==1){
-                ar[i] = (int)q-'0';
-                i++;
-            }
-        }
-        srcImg = new Img{ar, w, h};
-        processedImg = new Img{ar, w, h};
-        int *ar1 = new int[9]{0, 1, 0, 1, 1, 1, 0, 1, 0};
-        mask = new Img{ar1, 3, 3};
-        fin.close();
-        delete[] ar;
-        delete[] ar1;
+    int* ar = new int[w * h];
+    string text;
+    char* buf = new char[255];
+    while (fscanf(fLog, "%s", buf) != EOF) {
+        text += buf;
+    };
+    for (int i = 0; i < h * w; i++) {
+        ar[i] = (int)text[i] - '0';
     }
+    fclose(fLog);
+    Img* NEWsrcImg = new Img{ ar, w, h };
+    delete srcImg;
+    srcImg=new Img(NEWsrcImg->srcImg,NEWsrcImg->width,NEWsrcImg->height);
+    processedImg=new Img(NEWsrcImg->srcImg,NEWsrcImg->width,NEWsrcImg->height);
+    delete NEWsrcImg;
+    delete[] ar;
+    delete[] buf;
 }
 ImageProcess::~ImageProcess(){
     delete srcImg;
@@ -120,9 +100,9 @@ int ImageProcess::dilatation(int srcImg){
        img=this->srcImg->srcImg;
     }
     else{
-        iw=this->processedImg->width;
-        ih=this->processedImg->height;
-        img=this->processedImg->srcImg;
+        iw=processedImg->width;
+        ih=processedImg->height;
+        img=processedImg->srcImg;
     }
     int mw=this->mask->width;
     int mh=this->mask->height;
@@ -152,7 +132,7 @@ int ImageProcess::dilatation(int srcImg){
             }
         }
     }
-    ////////////delotation
+    ////////////delatation
     d=0;
     int p=0;
     int* imgr1= new int[rw*rh];
@@ -203,11 +183,20 @@ int ImageProcess::dilatation(int srcImg){
             }
         }
     }
-    for(int i=0;i<iw*ih;i++){
-        processedImg->srcImg[i]=img[i];
+    if(srcImg==1){
+        for(int i=0;i<iw*ih;i++){
+            processedImg->srcImg[i]=img[i];
+        }
     }
-    img=nullptr;
+    else{
+        for(int i=0;i<iw*ih;i++){
+            this->processedImg->srcImg[i]=img[i];
+        }
+    }
+    img=nullptr;///////////////////////////////////
     mask=nullptr;
+    imgr=nullptr;
+    imgr1=nullptr;
     return 0;
 
 
@@ -304,11 +293,20 @@ int ImageProcess::erosion(int srcImg){
             }
         }
     }
-    for(int i=0;i<iw*ih;i++){
-        processedImg->srcImg[i]=img[i];
+    if(srcImg==1){
+        for(int i=0;i<iw*ih;i++){
+            this->processedImg->srcImg[i]=img[i];
+        }
     }
-    img=nullptr;
+    else{
+        for(int i=0;i<iw*ih;i++){
+            this->srcImg->srcImg[i]=img[i];
+        }
+    }
+    img=nullptr;///////////////////////////////////
     mask=nullptr;
+    imgr=nullptr;
+    imgr1=nullptr;
     return 0;
 }
 int ImageProcess::loadImgFromFile(const char* fileName, int format){
@@ -341,10 +339,10 @@ int ImageProcess::loadImgFromFile(const char* fileName, int format){
 
 int ImageProcess::saveImgToFile(const char* fileName, int format){
     FILE* fLog = fopen(fileName, "w");
-    fprintf(fLog, "%d\t%d\n", processedImg->width, srcImg->height);
+    fprintf(fLog, "%d\t%d\n", processedImg->width, processedImg->height);
     for (int i = 0; i < processedImg->height; i++) {
         for (int j = 0; j < processedImg->width; j++) {
-            fprintf(fLog, "%d", processedImg->srcImg[i * srcImg->width + j]);
+            fprintf(fLog, "%d", processedImg->srcImg[i * processedImg->width + j]);
         }
         if (format == 1) {
             fprintf(fLog, "\n");
