@@ -49,27 +49,22 @@ ImageProcess::ImageProcess(const Img* img){
     delete[] ar;
 }
 ImageProcess::ImageProcess(const char* fileName) {
-    FILE* fLog = fopen(fileName, "r");
+    FILE* f = fopen(fileName, "r");
     int w, h;
-    if (fscanf(fLog, "%d\t%d", &w, &h) == false) {
-        cout << "wrong input" << endl;
-        fclose(fLog);
-    }
+    fscanf(f, "%d\t%d", &w, &h);
     int* ar = new int[w * h];
-    string text;
+    string matrix;
     char* buf = new char[255];
-    while (fscanf(fLog, "%s", buf) != EOF) {
-        text += buf;
-    };
-    for (int i = 0; i < h * w; i++) {
-        ar[i] = (int)text[i] - '0';
-    }
-    fclose(fLog);
-    Img* NEWsrcImg = new Img{ ar, w, h };
+    while (fscanf(f, "%s", buf) != EOF)
+        matrix += buf;
+    for (int i = 0; i < h * w; i++)
+        ar[i] = (int)matrix[i] - '0';
+    fclose(f);
+    Img* buf1 = new Img{ ar, w, h };
     delete srcImg;
-    srcImg=new Img(NEWsrcImg->srcImg,NEWsrcImg->width,NEWsrcImg->height);
-    processedImg=new Img(NEWsrcImg->srcImg,NEWsrcImg->width,NEWsrcImg->height);
-    delete NEWsrcImg;
+    srcImg=new Img(buf1->srcImg,buf1->width,buf1->height);
+    processedImg=new Img(buf1->srcImg,buf1->width,buf1->height);
+    delete buf1;
     delete[] ar;
     delete[] buf;
 }
@@ -300,45 +295,39 @@ int ImageProcess::erosion(int srcImg){
     return 0;
 }
 int ImageProcess::loadImgFromFile(const char* fileName, int format){
-    FILE* fLog = fopen(fileName, "r");
+    FILE* f = fopen(fileName, "r");
     int w, h;
-    if (fscanf(fLog, "%d\t%d", &w, &h) == false) {
-        cout << "wrong input" << endl;
-        fclose(fLog);
-        return 1;
-    }
+    fscanf(f, "%d\t%d", &w, &h);
     int* ar = new int[w * h];
-    string text;
+    string matrix;
     char* buf = new char[255];
-    while (fscanf(fLog, "%s", buf) != EOF) {
-        text += buf;
-    };
-    for (int i = 0; i < h * w; i++) {
-        ar[i] = (int)text[i] - '0';
-    }
-    fclose(fLog);
-    Img* NEWsrcImg = new Img{ ar, w, h };
+    while (fscanf(f, "%s", buf) != EOF)
+        matrix += buf;
+    for (int i = 0; i < h * w; i++)
+        ar[i] = (int)matrix[i] - '0';
+    fclose(f);
+    Img* buf1 = new Img{ ar, w, h };
     delete srcImg;
-    srcImg=new Img(NEWsrcImg->srcImg,NEWsrcImg->width,NEWsrcImg->height);
-    processedImg=new Img(NEWsrcImg->srcImg,NEWsrcImg->width,NEWsrcImg->height);
-    delete NEWsrcImg;
+    srcImg=new Img(buf1->srcImg,buf1->width,buf1->height);
+    processedImg=new Img(buf1->srcImg,buf1->width,buf1->height);
+    delete buf1;
     delete[] ar;
     delete[] buf;
     return 0;
 }
 
 int ImageProcess::saveImgToFile(const char* fileName, int format){
-    FILE* fLog = fopen(fileName, "w");
-    fprintf(fLog, "%d\t%d\n", processedImg->width, processedImg->height);
+    FILE* f = fopen(fileName, "w");
+    fprintf(f, "%d\t%d\n", processedImg->width, processedImg->height);
     for (int i = 0; i < processedImg->height; i++) {
         for (int j = 0; j < processedImg->width; j++) {
-            fprintf(fLog, "%d", processedImg->srcImg[i * processedImg->width + j]);
+            fprintf(f, "%d", processedImg->srcImg[i * processedImg->width + j]);
         }
         if (format == 1) {
-            fprintf(fLog, "\n");
+            fprintf(f, "\n");
         }
     }
-    fclose(fLog);
+    fclose(f);
     return 0;
 
 }
