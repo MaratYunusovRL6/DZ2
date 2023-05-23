@@ -183,17 +183,12 @@ int ImageProcess::dilatation(int srcImg){
             }
         }
     }
-    if(srcImg==1){
-        for(int i=0;i<iw*ih;i++){
+    for(int i=0;i<iw*ih;i++){
             processedImg->srcImg[i]=img[i];
-        }
     }
-    else{
-        for(int i=0;i<iw*ih;i++){
-            this->processedImg->srcImg[i]=img[i];
-        }
+    for (int i=0;i<iw*ih;i++){
+        img[i]=0;
     }
-    img=nullptr;///////////////////////////////////
     mask=nullptr;
     imgr=nullptr;
     imgr1=nullptr;
@@ -293,17 +288,12 @@ int ImageProcess::erosion(int srcImg){
             }
         }
     }
-    if(srcImg==1){
-        for(int i=0;i<iw*ih;i++){
-            this->processedImg->srcImg[i]=img[i];
-        }
+    for(int i=0;i<iw*ih;i++) {
+        this->processedImg->srcImg[i] = img[i];
     }
-    else{
-        for(int i=0;i<iw*ih;i++){
-            this->srcImg->srcImg[i]=img[i];
-        }
+    for (int i=0;i<iw*ih;i++){
+        img[i]=0;
     }
-    img=nullptr;///////////////////////////////////
     mask=nullptr;
     imgr=nullptr;
     imgr1=nullptr;

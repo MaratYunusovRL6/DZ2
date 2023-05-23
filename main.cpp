@@ -9,16 +9,18 @@ int main() {
                          1,1,1,1,1,
                          0,0,1,0,0,
                          0,0,1,0,0,};*/
-    //int* ar =new int[9]{0,1,0,
-      //                  1,1,1,
-     //                   0,1,0};
-
-   // Img* m = new Img{ar, 3,3};
-   // a.updateMask( *m);
-    a.loadImgFromFile("MyFile0.txt");
+    int* ar =new int[9]{0,1,0,
+                       1,1,1,
+                       0,1,0};
+         /*int* ar=new int[12]{0,0,1,0,
+                       1,1,1,1,
+                       0,0,1,0};*/
+    Img* m = new Img{ar, 3,3};
+    a.updateMask( *m);
+    a.loadImgFromFile("MyFile.txt");
     a.dilatation(1);
     //a.saveImgToFile("MyFile0.txt", 1);
-    a.erosion(0);
+    a.erosion(1);
     //a.dilatation(1);
     a.saveImgToFile("MyFile1.txt", 1);
     return 0;}
